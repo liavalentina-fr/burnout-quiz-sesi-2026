@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avaliação de Burnout — SESI Maringá</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <div class="topbar">
+  <div class="brand">
+    <div class="brand-sesi">SESI</div>
+    <div class="brand-div"></div>
+    <div class="brand-sub">Internacional<br>Maringá</div>
+  </div>
+  <div class="topbar-tag">Equipe 2 · TDS · 2026</div>
+</div>
+<div class="yellow-bar"></div>
+
+<!-- ESCOLHA -->
+<div id="screen-escolha" class="screen active">
+  <div class="pad" style="flex:1">
+    <div class="escolha-hero">
+      <h1>Avaliação de <em>Burnout</em></h1>
+      <p>Questionário de bem-estar no ambiente de trabalho</p>
+      <div class="cards-row">
+        <button class="perfil-card" id="btn-funcionario">
+          <div class="perfil-icon">👤</div>
+          <div>
+            <h2>Sou Funcionário</h2>
+            <p>Responda o questionário e receba uma análise com orientações práticas.</p>
+          </div>
+          <div class="perfil-cta">Começar <span class="arrow">›</span></div>
+        </button>
+        <button class="perfil-card alt" id="btn-gerente">
+          <div class="perfil-icon">🏢</div>
+          <div>
+            <h2>Sou Gerente</h2>
+            <p>Acesse o painel com os resultados da equipe e recomendações.</p>
+          </div>
+          <div class="perfil-cta">Entrar <span class="arrow">›</span></div>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="escolha-footer">
+    <strong>Equipe 2</strong> — Lia · Valdir · Miguel · Vitor · Enzo<br>
+    2º Ano · Técnico em Desenvolvimento de Sistemas · SESI Internacional Maringá · 2026<br>
+    <span style="font-size:.68rem;opacity:.6">Projeto acadêmico. Dados ficam apenas no navegador.</span>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen">
+  <div class="pad" style="flex:1">
+    <div class="page-hero">
+      <button class="back-btn" onclick="irPara('screen-escolha')">← Voltar</button>
+      <div class="login-box">
+        <h2>Acesso gerencial</h2>
+        <p class="sub">Insira suas credenciais institucionais.</p>
+        <div class="field">
+          <label for="login-user">Usuário</label>
+          <input id="login-user" type="text" placeholder="Usuário institucional" autocomplete="off"/>
+        </div>
+        <div class="field">
+          <label for="login-pass">Senha</label>
+          <input id="login-pass" type="password" placeholder="••••••••"/>
+        </div>
+        <div id="login-erro" class="alerta" hidden>⚠ Usuário ou senha incorretos.</div>
+        <button class="btn-primary" id="btn-entrar">Entrar</button>
+        <p class="nota">Login simulado para fins acadêmicos.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="pad" style="flex:1">
+    <div class="quiz-intro">
+      <button class="back-btn" onclick="irPara('screen-escolha')">← Início</button>
+      <h2>Avaliação de <em style="font-style:italic;color:var(--navy)">Burnout</em></h2>
+      <p style="color:var(--muted);font-size:.84rem">Responda com honestidade. Não há respostas certas ou erradas.</p>
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <span class="progress-txt" id="progress-txt">0 / 20</span>
+      </div>
+    </div>
+    <form id="burnout-form" novalidate>
+      <div id="questions-container"></div>
+      <div id="validation-msg" class="alerta" hidden>⚠ Responda todas as perguntas antes de continuar.</div>
+      <div class="submit-area">
+        <button type="submit" class="btn-submit">Ver meu resultado</button>
+      </div>
+    </form>
+    <section id="result-section" hidden></section>
+  </div>
+</div>
+
+<!-- GERENTE -->
+<div id="screen-gerente" class="screen">
+  <div class="pad gerente-pad" style="flex:1">
+    <div class="page-hero">
+      <button class="back-btn" onclick="irPara('screen-escolha')">← Sair</button>
+      <div id="gerente-conteudo"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const perguntas=[
+  {text:"Sinto que tenho boas relações com meus colegas de trabalho.",type:"pos"},
+  {text:"Consigo manter contato com pessoas fora do meu trabalho com frequência.",type:"pos"},
+  {text:"Sinto que faço parte de um time coeso e colaborativo.",type:"pos"},
+  {text:"Tenho me sentido cada vez mais distante das pessoas ao meu redor.",type:"neg"},
+  {text:"Prefiro ficar sozinho do que interagir com colegas, mesmo em situações casuais.",type:"neg"},
+  {text:"Consigo encerrar meu expediente no horário previsto com regularidade.",type:"pos"},
+  {text:"Sinto que a quantidade de trabalho que recebo é compatível com minha carga horária.",type:"pos"},
+  {text:"Tenho controle sobre o meu tempo dentro do trabalho.",type:"pos"},
+  {text:"Trabalho frequentemente além do horário, mesmo sem necessidade real.",type:"neg"},
+  {text:"Sinto que, se não ficar além do horário, serei mal visto pela equipe ou chefia.",type:"neg"},
+  {text:"Faço pausas regulares ao longo do dia para descansar a mente.",type:"pos"},
+  {text:"Sinto que meu tempo de almoço é respeitado e não invadido por demandas.",type:"pos"},
+  {text:"Consigo me desligar do trabalho nos fins de semana e feriados.",type:"pos"},
+  {text:"Sinto culpa quando paro de trabalhar para descansar, mesmo brevemente.",type:"neg"},
+  {text:"Percebo que estou trabalhando mesmo durante momentos que deveriam ser de descanso.",type:"neg"},
+  {text:"Recebo retornos claros e construtivos sobre o meu desempenho.",type:"pos"},
+  {text:"Sinto que meu trabalho é reconhecido quando entrego bons resultados.",type:"pos"},
+  {text:"A comunicação com minha chefia é aberta e transparente.",type:"pos"},
+  {text:"Raramente recebo qualquer tipo de retorno sobre o que faço.",type:"neg"},
+  {text:"Sinto que as críticas que recebo são injustas ou mal explicadas.",type:"neg"},
+];
+
+const classificacoes=[
+  {max:25,nivel:"Baixo risco de burnout",cor:"#1e8a52",analise:"Seus resultados indicam que você está em uma posição relativamente saudável. Você mantém vínculos sociais, controla bem seu tempo e consegue se desconectar do trabalho. Continue prestando atenção aos sinais do seu corpo e mente.",dicas:["Mantenha seus hábitos de descanso e lazer como prioridade.","Compartilhe boas práticas com colegas que possam estar sobrecarregados.","Revise periodicamente sua carga de trabalho para não acumular sem perceber."],recGerente:{titulo:"Baixo risco",acoes:["Reconheça publicamente o bom equilíbrio.","Envolva-os em mentorias ou programas de apoio.","Ofereça desafios e oportunidades de crescimento."]}},
+  {max:50,nivel:"Risco moderado",cor:"#c47a15",analise:"Você demonstra alguns sinais de alerta. Pode estar havendo dificuldade em desconectar do trabalho, sobrecarga ou falta de reconhecimento. Este é o momento ideal para ajustar a rota.",dicas:["Estabeleça horários fixos para encerrar o expediente.","Inclua pausas curtas ao longo do dia.","Comunique sua carga ao gestor se estiver acima do razoável.","Busque atividades fora do trabalho que te tragam prazer."],recGerente:{titulo:"Risco moderado",acoes:["Agende conversa individual para entender pontos de tensão.","Revise distribuição de tarefas.","Garanta que feedbacks sejam frequentes e positivos também."]}},
+  {max:75,nivel:"Alto risco de burnout",cor:"#c23b22",analise:"Seus resultados revelam sinais significativos de esgotamento. É importante agir agora — tanto no ambiente profissional quanto no cuidado pessoal.",dicas:["Fale com alguém de confiança sobre como está se sentindo.","Considere buscar acompanhamento psicológico.","Reduza compromissos não essenciais.","Converse com seu gestor sobre redistribuição de tarefas."],recGerente:{titulo:"Alto risco",acoes:["Priorize conversa empática e confidencial.","Considere redução temporária de responsabilidades.","Revise imediatamente a carga de trabalho."]}},
+  {max:100,nivel:"Risco muito alto",cor:"#8b1313",analise:"Os resultados indicam um nível crítico de esgotamento. Você pode estar experimentando exaustão intensa e sensação de impotência. Isso merece atenção imediata.",dicas:["Procure apoio profissional de saúde mental o mais breve possível.","Comunique ao RH ou gestor que não está bem.","Priorize sono, alimentação e movimento físico leve.","Saiba que burnout é uma condição reconhecida — você não está exagerando."],recGerente:{titulo:"Risco muito alto",acoes:["Trate como urgência — acione o RH imediatamente.","Avalie afastamento remunerado ou licença médica.","Garanta acompanhamento de saúde mental especializado."]}},
+];
+
+const STORAGE_KEY="burnout_resultados";
+function salvar(pct){const r=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");r.push({percentual:pct,data:new Date().toISOString()});localStorage.setItem(STORAGE_KEY,JSON.stringify(r))}
+function obter(){return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}
+
+function irPara(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
+
+document.getElementById("btn-funcionario").addEventListener("click",()=>{irPara("screen-quiz");if(!document.querySelector(".q-card"))renderPerguntas()});
+document.getElementById("btn-gerente").addEventListener("click",()=>{irPara("screen-login");document.getElementById("login-user").value="";document.getElementById("login-pass").value="";document.getElementById("login-erro").hidden=true;setTimeout(()=>document.getElementById("login-user").focus(),300)});
+
+const CRED={usuario:"ColegioSesi",senha:"1234"};
+document.getElementById("btn-entrar").addEventListener("click",login);
+["login-user","login-pass"].forEach(id=>document.getElementById(id).addEventListener("keydown",e=>{if(e.key==="Enter")login()}));
+function login(){
+  const u=document.getElementById("login-user").value.trim();
+  const s=document.getElementById("login-pass").value;
+  const err=document.getElementById("login-erro");
+  if(u===CRED.usuario&&s===CRED.senha){err.hidden=true;irPara("screen-gerente");renderGerente()}
+  else{err.hidden=false;document.getElementById("login-pass").value="";document.getElementById("login-pass").focus()}
+}
+
+function renderPerguntas(){
+  const cont=document.getElementById("questions-container");
+  cont.innerHTML="";
+  let answered=0;
+  const updateProgress=()=>{
+    answered=perguntas.filter((_,i)=>document.querySelector(`input[name="q${i}"]:checked`)).length;
+    document.getElementById("progress-fill").style.width=`${(answered/perguntas.length)*100}%`;
+    document.getElementById("progress-txt").textContent=`${answered} / ${perguntas.length}`;
+  };
+  perguntas.forEach((p,i)=>{
+    const card=document.createElement("div");
+    card.className="q-card";
+    card.dataset.index=i;
+    card.style.animationDelay=`${i*30}ms`;
+    card.innerHTML=`<p class="q-num">Pergunta ${i+1} de ${perguntas.length}</p><p class="q-text">${p.text}</p>
+    <div class="scale-wrap">
+      <div class="dots-row">${[1,2,3,4,5,6,7].map(v=>`<label class="dot-label"><input type="radio" name="q${i}" value="${v}"/><span class="dot-circle"></span><span class="dot-num">${v}</span></label>`).join("")}</div>
+      <div class="scale-labels"><span>Discordo</span><span>Concordo</span></div>
+    </div>`;
+    card.querySelectorAll("input").forEach(inp=>inp.addEventListener("change",()=>{card.classList.remove("bad");updateProgress()}));
+    cont.appendChild(card);
+  });
+}
+
+function calcular(){
+  let total=0;
+  perguntas.forEach((p,i)=>{
+    const sel=document.querySelector(`input[name="q${i}"]:checked`);
+    if(!sel)return;
+    const v=parseInt(sel.value);
+    total+=p.type==="pos"?v-1:7-v;
+  });
+  return parseFloat(((total/120)*100).toFixed(2));
+}
+
+function validar(){
+  const cards=document.querySelectorAll(".q-card");
+  let ok=true,first=null;
+  cards.forEach((card,i)=>{
+    if(!document.querySelector(`input[name="q${i}"]:checked`)){card.classList.add("bad");ok=false;if(!first)first=card}
+    else card.classList.remove("bad");
+  });
+  if(!ok&&first)first.scrollIntoView({behavior:"smooth",block:"center"});
+  return ok;
+}
+
+document.getElementById("burnout-form").addEventListener("submit",function(e){
+  e.preventDefault();
+  const msg=document.getElementById("validation-msg");
+  if(!validar()){msg.hidden=false;return}
+  msg.hidden=true;
+  const pct=calcular();
+  salvar(pct);
+  mostrarResultado(pct);
+});
+
+function mostrarResultado(pct){
+  document.getElementById("burnout-form").hidden=true;
+  const sec=document.getElementById("result-section");
+  sec.hidden=false;
+  const cl=classificacoes.find(c=>pct<=c.max)||classificacoes.at(-1);
+  sec.innerHTML=`
+  <div class="result-box">
+    <p style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Seu nível de risco</p>
+    <div class="gauge-wrap">
+      <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
+        <path class="g-bg" d="M20 100 A80 80 0 0 1 180 100"/>
+        <path id="g-arc" class="g-fill" d="M20 100 A80 80 0 0 1 180 100"/>
+        <line id="g-needle" x1="100" y1="100" x2="100" y2="28" stroke="#1a2e5a" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="100" cy="100" r="5" fill="#1a2e5a"/>
+      </svg>
+    </div>
+    <p class="r-pct" id="r-pct">0%</p>
+    <p class="r-nivel" style="color:${cl.cor}">${cl.nivel}</p>
+    <div class="r-analise" style="border-left-color:${cl.cor}">${cl.analise}</div>
+    <div class="r-dicas">
+      <p class="dicas-title">O que você pode fazer</p>
+      <ul class="dicas-list">${cl.dicas.map(d=>`<li>${d}</li>`).join("")}</ul>
+    </div>
+    <button class="btn-outline" onclick="location.reload()">Refazer o teste</button>
+    <p class="nota" style="margin-top:12px">⚠ Projeto acadêmico — não substitui avaliação profissional.</p>
+  </div>`;
+  sec.scrollIntoView({behavior:"smooth"});
+  animarGauge(pct,cl.cor);
+}
+
+function animarGauge(pct,cor){
+  const arc=document.getElementById("g-arc");
+  const needle=document.getElementById("g-needle");
+  const total=Math.PI*80;
+  arc.style.strokeDasharray=`${total}`;
+  arc.style.strokeDashoffset=`${total}`;
+  arc.style.stroke=cor;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    arc.style.strokeDashoffset=total*(1-pct/100);
+    const deg=-90+(pct/100)*180;
+    needle.style.transformOrigin="100px 100px";
+    needle.style.transform=`rotate(${deg}deg)`;
+    needle.style.transition="transform 1s cubic-bezier(.4,0,.2,1)";
+  }));
+  const disp=document.getElementById("r-pct");
+  const t0=performance.now();
+  (function tick(now){
+    const prog=Math.min((now-t0)/1000,1);
+    disp.textContent=`${Math.round(prog*pct)}%`;
+    if(prog<1)requestAnimationFrame(tick);
+  })(performance.now());
+}
+
+function renderGerente(){
+  const cont=document.getElementById("gerente-conteudo");
+  const registros=obter();
+  if(registros.length===0){
+    cont.innerHTML=`<div class="g-empty"><div class="g-empty-icon">📭</div><p><strong>Nenhum resultado registrado ainda.</strong></p><p style="margin-top:8px;font-size:.84rem">Peça aos funcionários para responderem o questionário neste dispositivo.</p></div>`;
+    return;
+  }
+  const total=registros.length;
+  const media=registros.reduce((s,r)=>s+r.percentual,0)/total;
+  const max=Math.max(...registros.map(r=>r.percentual));
+  const min=Math.min(...registros.map(r=>r.percentual));
+  const faixas=[
+    {label:"Baixo risco",cor:"#1e8a52",count:0},
+    {label:"Moderado",cor:"#c47a15",count:0},
+    {label:"Alto risco",cor:"#c23b22",count:0},
+    {label:"Muito alto",cor:"#8b1313",count:0},
+  ];
+  registros.forEach(r=>{
+    if(r.percentual<=25)faixas[0].count++;
+    else if(r.percentual<=50)faixas[1].count++;
+    else if(r.percentual<=75)faixas[2].count++;
+    else faixas[3].count++;
+  });
+  const corMedia=classificacoes.find(c=>media<=c.max)?.cor||"#8b1313";
+  const alerta=(faixas[3].count>0||faixas[2].count>0)?`<div class="alerta-critico">⚠ <strong>Atenção:</strong> ${faixas[3].count>0?`<strong>${faixas[3].count} funcionário(s)</strong> com risco muito alto. `:""}${faixas[2].count>0?`<strong>${faixas[2].count} funcionário(s)</strong> com alto risco.`:""}</div>`:"";
+  cont.innerHTML=`
+    ${alerta}
+    <p class="section-title">Visão geral — ${total} resposta${total>1?"s":""}</p>
+    <div class="g-metrics">
+      <div class="g-metric"><div class="g-metric-val" style="color:${corMedia}">${Math.round(media)}%</div><div class="g-metric-lbl">Média geral</div></div>
+      <div class="g-metric" style="animation-delay:.07s"><div class="g-metric-val">${total}</div><div class="g-metric-lbl">Respostas</div></div>
+      <div class="g-metric" style="animation-delay:.14s"><div class="g-metric-val" style="color:#c23b22">${Math.round(max)}%</div><div class="g-metric-lbl">Maior risco</div></div>
+      <div class="g-metric" style="animation-delay:.21s"><div class="g-metric-val" style="color:#1e8a52">${Math.round(min)}%</div><div class="g-metric-lbl">Menor risco</div></div>
+    </div>
+    <p class="section-title">Distribuição por nível</p>
+    <div class="g-chart">${faixas.map(f=>`<div class="bar-row"><span class="bar-lbl">${f.label}</span><div class="bar-track"><div class="bar-fill" data-pct="${total>0?(f.count/total)*100:0}" style="background:${f.cor}"></div></div><span class="bar-cnt">${f.count}</span></div>`).join("")}</div>
+    <p class="section-title">O que fazer com cada perfil</p>
+    <div class="g-recs">${classificacoes.map((c,i)=>`<div class="g-rec"><p class="g-rec-tag" style="color:${c.cor}">${c.recGerente.titulo}</p><ul class="g-rec-lista" style="list-style:none;display:flex;flex-direction:column;gap:6px">${c.recGerente.acoes.map(a=>`<li style="font-size:.78rem;color:var(--muted);padding-left:12px;position:relative;line-height:1.5"><span style="position:absolute;left:0;font-weight:800;color:#c47a15">·</span>${a}</li>`).join("")}</ul></div>`).join("")}</div>
+    <button class="btn-limpar" onclick="limpar()">Limpar todos os registros</button>
+  `;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.querySelectorAll(".bar-fill").forEach(el=>el.style.width=`${el.dataset.pct}%`);
+  }));
+}
+
+function limpar(){
+  if(confirm("Apagar todos os registros?")){localStorage.removeItem(STORAGE_KEY);renderGerente()}
+}
+
+irPara("screen-escolha");
+</script>
+</body>
+</html>
